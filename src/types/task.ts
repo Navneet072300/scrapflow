@@ -4,3 +4,13 @@ export enum TaskType {
 export enum TaskParamsType {
   STRING = "STRING",
 }
+
+export interface TaskParams {
+  name: string;
+  type: TaskParamsType;
+  helperText?: string;
+  required?: boolean;
+  hideHandle?: boolean;
+  value?: string;
+  [key: string]: any;
+}
