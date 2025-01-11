@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import { TaskParams } from "@/types/task";
 import { Handle, Position } from "@xyflow/react";
 import { ReactNode } from "react";
+import NodeParamsField from "./NodeParamsField";
 
 export function NodeInputs({ children }: { children: ReactNode }) {
   return <div className="flex flex-col divide-y gap-2">{children}</div>;
@@ -10,7 +11,7 @@ export function NodeInputs({ children }: { children: ReactNode }) {
 export function NodeInput({ input }: { input: TaskParams }) {
   return (
     <div className="flex justify-start relative p-3 w-full bg-secondary">
-      <pre>{JSON.stringify(input, null, 4)}</pre>
+      <NodeParamsField param={input} />
       {!input.hideHandle && (
         <Handle
           id={input.name}
