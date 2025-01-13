@@ -8,10 +8,16 @@ export function NodeInputs({ children }: { children: ReactNode }) {
   return <div className="flex flex-col divide-y gap-2">{children}</div>;
 }
 
-export function NodeInput({ input }: { input: TaskParams }) {
+export function NodeInput({
+  input,
+  nodeId,
+}: {
+  input: TaskParams;
+  nodeId: string;
+}) {
   return (
     <div className="flex justify-start relative p-3 w-full bg-secondary">
-      <NodeParamsField param={input} />
+      <NodeParamsField param={input} nodeId={nodeId} />
       {!input.hideHandle && (
         <Handle
           id={input.name}
