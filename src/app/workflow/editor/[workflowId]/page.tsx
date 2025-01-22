@@ -6,7 +6,7 @@ import Editor from "@/app/workflow/_components/Editor";
 import "@xyflow/react/dist/style.css";
 
 async function page({ params }: { params: { workflowId: string } }) {
-  const { workflowId } = params;
+  const { workflowId } = await params;
   const { userId } = await auth();
   if (!userId) return <div>unauthenticated</div>;
 
