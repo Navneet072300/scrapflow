@@ -2,6 +2,7 @@
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { ParamProps } from "@/types/appNode";
 import { useEffect, useId, useState } from "react";
 
@@ -12,6 +13,11 @@ const StringParam = ({ param, value, updateNodeParamValue }: ParamProps) => {
   useEffect(() => {
     setInternalValue(value);
   }, [value]);
+
+  let Component: any = Input;
+  if (param.variant === "textarea") {
+    Component = Textarea;
+  }
 
   return (
     <div className="space-y-1 p-1 w-full">
