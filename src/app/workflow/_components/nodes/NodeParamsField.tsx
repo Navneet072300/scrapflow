@@ -11,9 +11,11 @@ import BrowserInstanceParams from "./param/BrowserInstanceParams";
 const NodeParamsField = ({
   param,
   nodeId,
+  disabled,
 }: {
   param: TaskParams;
   nodeId: string;
+  disabled: boolean;
 }) => {
   const { updateNodeData, getNode } = useReactFlow();
   const node = getNode(nodeId) as AppNode;
@@ -38,6 +40,7 @@ const NodeParamsField = ({
           param={param}
           value={value}
           updateNodeParamValue={updateNodeParamValue}
+          disabled={disabled}
         />
       );
 
