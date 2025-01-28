@@ -8,6 +8,7 @@ export const PageToHtmlTask = {
     <CodeIcon className="stroke-rose-400" {...props} />
   ),
   isEntryPoint: false,
+  credits: 2,
   inputs: [
     {
       name: "Web page",
