@@ -5,6 +5,7 @@ import {
   WorkflowExecutionPlan,
   WorkFlowExecutionPlanPhase,
 } from "@/types/workflow";
+import { exec } from "child_process";
 
 type FlowToExecutionPlanType = {
   executionPlan?: WorkflowExecutionPlan;
@@ -30,10 +31,11 @@ export function FlowToExecutionPlan(
       nodes: [entryPoint],
     },
   ];
+  planned.add(entryPoint.id);
 
   for (
     let phase = 2;
-    phase <= nodes.length || planned.size < nodes.length;
+    phase <= nodes.length && planned.size < nodes.length;
     phase++
   ) {
     const nextPhase: WorkFlowExecutionPlanPhase = { phase, nodes: [] };
@@ -56,8 +58,11 @@ export function FlowToExecutionPlan(
       }
 
       nextPhase.nodes.push(currentNode);
-      planned.add(currentNode.id);
     }
+    for (const node of nextPhase.nodes) {
+      planned.add(node.id);
+    }
+    executionPlan.push(nextPhase);
   }
 
   return { executionPlan };
