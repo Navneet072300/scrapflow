@@ -1,4 +1,4 @@
-import { AppNode } from "@/types/appNode";
+import { AppNode, AppNodeMissingInputs } from "@/types/appNode";
 import { Edge, getIncomers } from "@xyflow/react";
 import { TaskRegistry } from "./task/registry";
 import {
@@ -7,8 +7,17 @@ import {
 } from "@/types/workflow";
 import { exec } from "child_process";
 
+export enum FlowExecutionPlanValidationError {
+  INVALID_INPUTS = "INVALID_INPUTS",
+  NO_ENTRY_POINT = "NO_ENTRY_POINT",
+}
+
 type FlowToExecutionPlanType = {
   executionPlan?: WorkflowExecutionPlan;
+  error?: {
+    type: FlowExecutionPlanValidationError;
+    invalidElements?: AppNodeMissingInputs[];
+  };
 };
 
 export function FlowToExecutionPlan(
@@ -20,10 +29,23 @@ export function FlowToExecutionPlan(
   );
 
   if (!entryPoint) {
-    throw new Error("TODO: HANDLE THIS ERROR");
+    return {
+      error: {
+        type: FlowExecutionPlanValidationError.NO_ENTRY_POINT,
+      },
+    };
   }
 
+  const inputsWitErrors: AppNodeMissingInputs[] = [];
   const planned = new Set<string>();
+
+  const invalidInputs = getInvalidInputs(entryPoint, edges, planned);
+  if (invalidInputs.length > 0) {
+    inputsWitErrors.push({
+      nodeId: entryPoint.id,
+      inputs: invalidInputs,
+    });
+  }
 
   const executionPlan: WorkflowExecutionPlan = [
     {
@@ -49,8 +71,10 @@ export function FlowToExecutionPlan(
       if (invalidInputs.length > 0) {
         const incomers = getIncomers(currentNode, nodes, edges);
         if (incomers.every((incomer) => planned.has(incomer.id))) {
-          console.error("invalid inputs", currentNode.id, invalidInputs);
-          throw new Error("TODO: HANDLE ERROR 1");
+          inputsWitErrors.push({
+            nodeId: currentNode.id,
+            inputs: invalidInputs,
+          });
         } else {
           // let's skip this node for now
           continue;
@@ -63,6 +87,15 @@ export function FlowToExecutionPlan(
       planned.add(node.id);
     }
     executionPlan.push(nextPhase);
+  }
+
+  if (inputsWitErrors.length > 0) {
+    return {
+      error: {
+        type: FlowExecutionPlanValidationError.INVALID_INPUTS,
+        invalidElements: inputsWitErrors,
+      },
+    };
   }
 
   return { executionPlan };
