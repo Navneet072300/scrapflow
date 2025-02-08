@@ -1,54 +1,44 @@
 "use server";
 
-import { db } from "@/db";
-import {
-  ExecutionPhase,
-  workflowExecutionTable,
-  workflowTable,
-} from "@/db/schema";
-import { getUser } from "@/lib/sessions";
-import { ExecutionWorkflow } from "@/lib/workflow/executionWorkflow";
-import { FlowExecutionPlan } from "@/lib/workflow/FlowExecutionPlan";
-import { TaskRegistry } from "@/lib/workflow/task/Registry";
-import {
-  ExecutionPhaseStatus,
-  ExecutionStatus,
-  WorkFlowExecutionPlan,
-  WorkflowExecutionTrigger,
-  WorkflowStatus,
-} from "@/types/workflow";
-import { eq } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
-import { permanentRedirect, redirect } from "next/navigation";
+import prisma from "@/lib/prisma";
+import { FlowToExecutionPlan } from "@/lib/workflow/executionPlan";
+import { WorkflowExecutionPlan } from "@/types/workflow";
+import { auth } from "@clerk/nextjs/server";
 
 export async function RunWorkFlow(form: {
-  workflowId: number;
+  workflowId: string;
   flowDefinition?: string;
 }) {
-  const user = await getUser();
-  if (!user) {
+  const { userId } = await auth();
+  if (!userId) {
     throw new Error("User not found");
   }
   const { workflowId, flowDefinition } = form;
   if (!workflowId) {
     throw new Error("Workflow ID is required");
   }
-  const workflow = await db.query.workflowTable.findFirst({
-    where: eq(workflowTable.id, workflowId),
+  const workflow = await prisma.workflow.findUnique({
+    where: {
+      userId,
+      id: workflowId,
+    },
   });
-
+  if (!workflow) {
+    throw new Error("Workflow not found");
+  }
+  let executionPlan: WorkflowExecutionPlan;
   if (!flowDefinition) {
     throw new Error("Flow Definition is not defined");
   }
   const flow = JSON.parse(flowDefinition);
-  const result = FlowExecutionPlan(flow.nodes, flow.edges);
+  const result = FlowToExecutionPlan(flow.nodes, flow.edges);
   if (result.error) {
     throw new Error("Invalid Flow Definition");
   }
   if (!result.executionPlan) {
     throw new Error("Execution Plan not found");
   }
-  const executionPlan = result.executionPlan;
+  executionPlan = result.executionPlan;
   console.log("Execution Plan", executionPlan);
 
   const execution = await db
