@@ -10,7 +10,7 @@ import {
   WorkflowExecutionTrigger,
 } from "@/types/workflow";
 import { auth } from "@clerk/nextjs/server";
-import { number } from "zod";
+import { redirect } from "next/navigation";
 
 export async function RunWorkFlow(form: {
   workflowId: string;
@@ -100,8 +100,7 @@ export async function RunWorkFlow(form: {
     await Promise.all(phasePromises);
   }
 
-  // Start the execution after all phases are created
-  ExecutionWorkflow(execution[0].id.toString());
+  ExecutionWorkflow(execution.id.toString());
 
-  redirect(`/workflow/runs/${workflowId}/${execution[0].id}`);
+  redirect(`/workflow/runs/${workflowId}/${execution.id}`);
 }
