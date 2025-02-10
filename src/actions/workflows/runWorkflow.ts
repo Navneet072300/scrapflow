@@ -2,8 +2,15 @@
 
 import prisma from "@/lib/prisma";
 import { FlowToExecutionPlan } from "@/lib/workflow/executionPlan";
-import { WorkflowExecutionPlan } from "@/types/workflow";
+import { TaskRegistry } from "@/lib/workflow/task/registry";
+import {
+  ExecutionPhaseStatus,
+  WorkflowExecutionPlan,
+  WorkflowExecutionStatus,
+  WorkflowExecutionTrigger,
+} from "@/types/workflow";
 import { auth } from "@clerk/nextjs/server";
+import { number } from "zod";
 
 export async function RunWorkFlow(form: {
   workflowId: string;
@@ -41,19 +48,32 @@ export async function RunWorkFlow(form: {
   executionPlan = result.executionPlan;
   console.log("Execution Plan", executionPlan);
 
-  const execution = await db
-    .insert(workflowExecutionTable)
-    .values({
+  const execution = await prisma.workflowExecution.create({
+    data: {
       workflowId,
-      userId: user.id!,
-      trigger: WorkflowExecutionTrigger.MANUAL,
-      status: ExecutionStatus.PENDING,
+      userId,
+      status: WorkflowExecutionStatus.PENDING,
       startedAt: new Date(),
-      definition: flowDefinition || "{}",
-    })
-    .returning({
-      id: workflowExecutionTable.id,
-    });
+      trigger: WorkflowExecutionTrigger.MANUAL,
+      phases: {
+        create: executionPlan.flatMap((phase) => {
+          return phase.nodes.flatMap((node) => {
+            return {
+              userId,
+              status: ExecutionPhaseStatus.CREATED,
+              number: phase.phase,
+              node: JSON.stringify(node),
+              name: TaskRegistry[node.data.type].label,
+            };
+          });
+        }),
+      },
+    },
+    select: {
+      id: true,
+      phases: true,
+    },
+  });
 
   if (!execution) {
     throw new Error("Execution not created");
