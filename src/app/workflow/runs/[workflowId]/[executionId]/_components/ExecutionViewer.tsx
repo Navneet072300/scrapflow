@@ -50,7 +50,7 @@ export default function ExecutionViewer({
   const query = useQuery({
     queryKey: ["execution", initialData?.id],
     initialData,
-    queryFn: () => getWorkflowExecutionWithPhases(initialData!.id.toString()),
+    queryFn: () => GetWorkflowExecutionWithPhases(initialData!.id.toString()),
     refetchInterval: (queryInfo) => {
       if (
         queryInfo.state.data?.status === ExecutionStatus.RUNNING ||

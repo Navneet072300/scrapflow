@@ -46,7 +46,7 @@ async function ExecutionViewerWrapper({
   return (
     <>
       {/* <pre>{JSON.stringify(workflowExecution, null, 4)}</pre> */}
-      <ExecutionViewer execution={workflowExecution} />
+      <ExecutionViewer initialData={workflowExecution} />
     </>
   );
 }
