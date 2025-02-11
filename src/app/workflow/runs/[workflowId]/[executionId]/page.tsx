@@ -1,22 +1,21 @@
 import Topbar from "@/app/workflow/_components/topbar/Topbar";
-import { getUser } from "@/lib/sessions";
+
 import { Loader2Icon } from "lucide-react";
 import { Suspense } from "react";
-import { getWorkflowExecutionWithPhases } from "@/actions/workflows/getWorkflowExecutionwithPhases";
+
+import { GetWorkflowExecutionWithPhases } from "@/actions/workflows/getWorkflowExecutionwithPhases";
 import ExecutionViewer from "./_components/ExecutionViewer";
 
-interface Props {
-  params: Promise<{
-    executionId: string;
-    workflowId: string;
-  }>;
-}
-export default async function RunView({ params }: Props) {
+export default async function ExecutionViewerPage({
+  params,
+}: {
+  params: { executionId: string; workflowId: string };
+}) {
   const param = await params;
   return (
     <div className="flex flex-col h-screen w-full overflow-hidden">
       <Topbar
-        workflowId={Number(param.workflowId)}
+        workflowId={param.workflowId}
         title="Workflow run details"
         subTitle={`Run ID: ${param.executionId}`}
         hideButtons={true}
@@ -40,18 +39,14 @@ async function ExecutionViewerWrapper({
 }: {
   executionId: string;
 }) {
-  const user = await getUser();
-  if (!user) {
-    return <div>unauthenticated</div>;
-  }
-  const workflowExecution = await getWorkflowExecutionWithPhases(executionId);
+  const workflowExecution = await GetWorkflowExecutionWithPhases(executionId);
   if (!workflowExecution) {
     return <div>Workflow execution not found</div>;
   }
   return (
     <>
       {/* <pre>{JSON.stringify(workflowExecution, null, 4)}</pre> */}
-      <ExecutionViewer initialData={workflowExecution} />
+      <ExecutionViewer execution={workflowExecution} />
     </>
   );
 }

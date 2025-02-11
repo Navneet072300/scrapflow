@@ -1,16 +1,11 @@
 "use client";
 
-import {
-  getWorkflowExecutionWithPhases,
-  GetWorkflowPhaseDetails,
-} from "@/actions/workflows/getWorkflowExecutionwithPhases";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { ExecutionPhaseStatus, ExecutionStatus } from "@/types/workflow";
 import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
-import { DatesToDuration } from "@/lib/helpers/dates";
+
 import {
   CalendarIcon,
   CircleDashedIcon,
@@ -21,8 +16,7 @@ import {
   WorkflowIcon,
 } from "lucide-react";
 import { ReactNode, useEffect, useState } from "react";
-import { getPhasesTotalCost } from "@/lib/helpers/phases";
-import { is } from "drizzle-orm";
+
 import {
   Card,
   CardContent,
@@ -31,7 +25,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { ExecutionLog } from "@/db/schema/executions";
+
 import {
   Table,
   TableBody,
@@ -41,11 +35,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
-import { Loglevel } from "@/types/logs";
-import PhaseStatusBadge from "./PhasesStatusBadges";
-import ReactCountUpWrapper from "@/components/ReactCountUpWrapper";
+import { GetWorkflowExecutionWithPhases } from "@/actions/workflows/getWorkflowExecutionwithPhases";
 
-type ExecutionData = ReturnType<typeof getWorkflowExecutionWithPhases>;
+type ExecutionData = ReturnType<typeof GetWorkflowExecutionWithPhases>;
 type PhaseDetails = Awaited<ReturnType<typeof GetWorkflowPhaseDetails>> & {
   logs: ExecutionLog[];
 };
