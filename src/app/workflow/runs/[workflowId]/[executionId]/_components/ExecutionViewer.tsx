@@ -36,6 +36,12 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { GetWorkflowExecutionWithPhases } from "@/actions/workflows/getWorkflowExecutionwithPhases";
+import { DatesToDuration } from "@/lib/helper/dates";
+import { GetPhasesTotalCost } from "@/lib/helper/phases";
+import {
+  ExecutionPhaseStatus,
+  WorkflowExecutionStatus,
+} from "@/types/workflow";
 
 type ExecutionData = ReturnType<typeof GetWorkflowExecutionWithPhases>;
 type PhaseDetails = Awaited<ReturnType<typeof GetWorkflowPhaseDetails>> & {
@@ -66,7 +72,7 @@ export default function ExecutionViewer({
     enabled: !!selectedPhase,
     queryFn: () => GetWorkflowPhaseDetails(selectedPhase!),
   });
-  const isRunning = query.data?.status === ExecutionStatus.RUNNING;
+  const isRunning = query.data?.status === WorkflowExecutionStatus.RUNNING;
 
   useEffect(() => {
     const phases = query.data?.phases || [];
@@ -87,7 +93,7 @@ export default function ExecutionViewer({
     query.data?.completedAt,
     query.data?.startedAt
   );
-  const creditsConsumed = getPhasesTotalCost(query.data?.phases || []);
+  const creditsConsumed = GetPhasesTotalCost(query.data?.phases || []);
   return (
     <>
       <div className="flex w-full">
