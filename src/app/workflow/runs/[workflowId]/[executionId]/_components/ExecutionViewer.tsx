@@ -42,6 +42,7 @@ import {
   ExecutionPhaseStatus,
   WorkflowExecutionStatus,
 } from "@/types/workflow";
+import { GetWorkflowPhaseDetails } from "@/actions/workflows/getWorkflowPhaseDetails";
 
 type ExecutionData = ReturnType<typeof GetWorkflowExecutionWithPhases>;
 type PhaseDetails = Awaited<ReturnType<typeof GetWorkflowPhaseDetails>> & {
