@@ -2,6 +2,7 @@
 
 import "server-only";
 import prisma from "../prisma";
+import { WorkflowExecutionStatus } from "@/types/workflow";
 
 export async function ExecutionWorkflow(executionId: string) {
   const executionArray = await prisma.workflowExecution.findUnique({
@@ -9,10 +10,9 @@ export async function ExecutionWorkflow(executionId: string) {
       id: executionId,
     },
     include: {
-     workflow: true,
-     phases:true
+      workflow: true,
+      phases: true,
     },
-
   });
   const execution = executionArray[0];
   if (!execution) {
@@ -63,21 +63,13 @@ async function initializeWorkflowExecution(
   executionId: string,
   workflowId: number
 ) {
-  await db
-    .update(workflowExecutionTable)
-    .set({
-      status: ExecutionStatus.RUNNING,
+  await prisma.workflowExecution.update({
+    where: { id: executionId },
+    data: {
       startedAt: new Date(),
-    })
-    .where(eq(workflowExecutionTable.id, Number(executionId)));
-  await db
-    .update(workflowTable)
-    .set({
-      lastRunAt: new Date(),
-      lastRunStatus: ExecutionStatus.RUNNING,
-      lastRunId: Number(executionId),
-    })
-    .where(eq(workflowTable.id, workflowId));
+      status: WorkflowExecutionStatus.RUNNING,
+    },
+  });
 }
 
 async function initializePhaseStatuses(execution: any) {
