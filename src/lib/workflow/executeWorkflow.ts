@@ -61,13 +61,21 @@ export async function ExecutionWorkflow(executionId: string) {
 
 async function initializeWorkflowExecution(
   executionId: string,
-  workflowId: number
+  workflowId: string
 ) {
   await prisma.workflowExecution.update({
     where: { id: executionId },
     data: {
       startedAt: new Date(),
       status: WorkflowExecutionStatus.RUNNING,
+    },
+  });
+  await prisma.workflow.update({
+    where: { id: workflowId },
+    data: {
+      lastRunAt: new Date(),
+      lastRunStatus: WorkflowExecutionStatus.RUNNING,
+      lastRunId: executionId,
     },
   });
 }
@@ -82,7 +90,7 @@ async function initializePhaseStatuses(execution: any) {
   }
 }
 async function finalizedWorkflowExecution(
-  executionId: string,
+  workflowId: string,
   workflowId: number,
   executionFailed: boolean,
   creditsConsumed: number

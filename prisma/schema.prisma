@@ -18,6 +18,10 @@ model Workflow {
   definition  String
   status      String
 
+  lastRunAt DateTime?
+  lastRunId String?
+  lastRunStatus String?
+
 createdAt  DateTime @default(now())
 updateAt   DateTime @updatedAt
 
