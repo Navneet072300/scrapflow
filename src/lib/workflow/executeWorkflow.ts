@@ -2,7 +2,10 @@
 
 import "server-only";
 import prisma from "../prisma";
-import { WorkflowExecutionStatus } from "@/types/workflow";
+import {
+  ExecutionPhaseStatus,
+  WorkflowExecutionStatus,
+} from "@/types/workflow";
 
 export async function ExecutionWorkflow(executionId: string) {
   const executionArray = await prisma.workflowExecution.findUnique({
@@ -81,37 +84,35 @@ async function initializeWorkflowExecution(
 }
 
 async function initializePhaseStatuses(execution: any) {
-  for (const phase of execution.phases) {
-    db.update(ExecutionPhase)
-      .set({
-        status: ExecutionPhaseStatus.RUNNING,
-      })
-      .where(eq(ExecutionPhase.id, phase.id));
-  }
+  await prisma.executionPhase.updateMany({
+    where: {
+      id: {
+        in: execution.phases.map((phase: any) => phase.id),
+      },
+    },
+    data: {
+      status: ExecutionPhaseStatus.PENDING,
+    },
+  });
 }
 async function finalizedWorkflowExecution(
+  executionId: string,
   workflowId: string,
-  workflowId: number,
   executionFailed: boolean,
   creditsConsumed: number
 ) {
   const finalStatus = executionFailed
-    ? ExecutionStatus.FAILED
-    : ExecutionStatus.COMPLETED;
-  await db
-    .update(workflowExecutionTable)
-    .set({
+    ? WorkflowExecutionStatus.FAILED
+    : WorkflowExecutionStatus.COMPLETED;
+
+  await prisma.workflowExecution.update({
+    where: { id: executionId },
+    data: {
       status: finalStatus,
       completedAt: new Date(),
       creditsConsumed,
-    })
-    .where(eq(workflowExecutionTable.id, Number(executionId)));
-  await db
-    .update(workflowTable)
-    .set({
-      lastRunStatus: finalStatus,
-    })
-    .where(eq(workflowTable.id, workflowId));
+    },
+  });
 }
 
 async function excuteWorkflowPhase(
