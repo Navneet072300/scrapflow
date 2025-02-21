@@ -6,6 +6,10 @@ import {
   ExecutionPhaseStatus,
   WorkflowExecutionStatus,
 } from "@/types/workflow";
+import { ExecutionPhase } from "@prisma/client";
+import { AppNode } from "@/types/appNode";
+import { TaskRegistry } from "./task/registry";
+import { Edge } from "@xyflow/react";
 
 export async function ExecutionWorkflow(executionId: string) {
   const executionArray = await prisma.workflowExecution.findUnique({
@@ -113,6 +117,18 @@ async function finalizedWorkflowExecution(
       creditsConsumed,
     },
   });
+
+  await prisma.workflow
+    .update({
+      where: {
+        id: workflowId,
+        lastRunId: executionId,
+      },
+      data: {
+        lastRunStatus: finalStatus,
+      },
+    })
+    .catch((err) => {});
 }
 
 async function excuteWorkflowPhase(
@@ -125,14 +141,14 @@ async function excuteWorkflowPhase(
   const startedAt = new Date();
   const node = JSON.parse(phase.node!) as AppNode;
   setupEnvironmentForPhase(node, environment, edges);
-  await db
-    .update(ExecutionPhase)
-    .set({
+  await prisma.executionPhase.update({
+    where: { id: phase.id },
+    data: {
       status: ExecutionPhaseStatus.RUNNING,
       startedAt,
-      inputs: JSON.stringify(environment.phases[node.id].inputs),
-    })
-    .where(eq(ExecutionPhase.id, phase.id));
+    },
+  });
+
   const creditsRequired = TaskRegistry[node.data.type].credits;
   console.log("Executing Phase", phase.name, " with credits ", creditsRequired);
   let success = await decrementCredits(userId, creditsRequired, logCollector);
@@ -152,7 +168,7 @@ async function excuteWorkflowPhase(
 }
 
 async function finalizePhase(
-  phaseId: number,
+  phaseId: string,
   success: boolean,
   outputs: any,
   logCollector: LogCollector,
@@ -162,23 +178,17 @@ async function finalizePhase(
   const finalStatus = success
     ? ExecutionPhaseStatus.COMPLETED
     : ExecutionPhaseStatus.FAILED;
-  await db
-    .update(ExecutionPhase)
-    .set({
+  await prisma.executionPhase.update({
+    where: { id: phaseId },
+    data: {
       status: finalStatus,
       completedAt: new Date(),
-      outputs: JSON.stringify(outputs),
+      outputs,
       creditsConsumed,
-    })
-    .where(eq(ExecutionPhase.id, phaseId));
-  const logs = logCollector.getAll();
-  const logInsertPromises = logs.map((log) => {
-    return db.insert(ExecutionLogs).values({
-      executionPhaseId: phaseId,
-      logLevel: log.level,
-      message: log.message,
-    });
+    },
   });
+  const logs = logCollector.getAll();
+  const logInsertPromises = logs.map((log) => {});
   await Promise.all(logInsertPromises);
 }
 
