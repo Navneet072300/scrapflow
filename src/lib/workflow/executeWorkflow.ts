@@ -10,6 +10,7 @@ import { ExecutionPhase } from "@prisma/client";
 import { AppNode } from "@/types/appNode";
 import { TaskRegistry } from "./task/registry";
 import { Edge } from "@xyflow/react";
+import { ExecutorRegistry } from "./executor/registry";
 
 export async function ExecutionWorkflow(executionId: string) {
   const executionArray = await prisma.workflowExecution.findUnique({
