@@ -11,6 +11,8 @@ import { AppNode } from "@/types/appNode";
 import { TaskRegistry } from "./task/registry";
 import { Edge } from "@xyflow/react";
 import { ExecutorRegistry } from "./executor/registry";
+import { Environment, ExecutionEnvironment } from "@/types/executor";
+import { TaskParamsType } from "@/types/task";
 
 export async function ExecutionWorkflow(executionId: string) {
   const executionArray = await prisma.workflowExecution.findUnique({
@@ -219,7 +221,7 @@ function setupEnvironmentForPhase(
   };
   const inputsDefinition = TaskRegistry[node.data.type].inputs;
   for (const input of inputsDefinition) {
-    if (input.type === TaskParamType.BROWSER_INSTANCE) continue;
+    if (input.type === TaskParamsType.BROWSER_INSTANCE) continue;
     const inputValue = node.data.inputs[input.name];
     if (inputValue) {
       environment.phases[node.id].inputs[input.name] = inputValue;
