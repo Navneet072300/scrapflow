@@ -1,9 +1,9 @@
 import { TaskType } from "@/types/task";
 import { LaunchBrowserExecutor } from "./LaunchBrowserExecutor";
 import { PageToHtmlExecutor } from "./PageToHtmlExecutor";
+import { ExtractTextFromHtmlExecutor } from "./ExtractTextFromHtmlExecutor";
 import { ExecutionEnvironment } from "@/types/executor";
 import { WorkflowTask } from "@/types/workflow";
-import { ExtractTextFromHtmlExecutor } from "./ExtractTextFromHtmlExecutor";
 
 type ExecutorFn<T extends WorkflowTask> = (
   environment: ExecutionEnvironment<T>
