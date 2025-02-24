@@ -1,8 +1,8 @@
-import { waitForDebugger } from "@/lib/helpers/waitFor";
-import { ExecutionEnvironment } from "@/types/executor";
 import puppeteer from "puppeteer";
 import { LaunchBrowserTask } from "../task/LaunchBrowser";
 import chromium from "@sparticuz/chromium";
+import { ExecutionEnvironment } from "@/types/executor";
+import { waitFor } from "@/lib/helper/waitFor";
 export async function LaunchBrowserExecutor(
   environment: ExecutionEnvironment<typeof LaunchBrowserTask>
 ): Promise<boolean> {
@@ -28,7 +28,7 @@ export async function LaunchBrowserExecutor(
     environment.log.info("Browser started successfully");
     environment.setBrowser(Browser);
     const page = await Browser.newPage();
-    await waitForDebugger(3000);
+    await waitFor(3000);
     await page.goto(websiteUrl);
     environment.setPage(page);
     environment.log.info(`Opened page at: ${websiteUrl}`);

@@ -13,6 +13,8 @@ import { Edge } from "@xyflow/react";
 import { ExecutorRegistry } from "./executor/registry";
 import { Environment, ExecutionEnvironment } from "@/types/executor";
 import { TaskParamsType } from "@/types/task";
+import { LogCollector } from "@/types/logs";
+import { Browser, Page } from "puppeteer";
 
 export async function ExecutionWorkflow(executionId: string) {
   const executionArray = await prisma.workflowExecution.findUnique({

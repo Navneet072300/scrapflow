@@ -37,8 +37,9 @@ model WorkflowExecution {
   trigger       String
   status        String
   createdAt     DateTime @default(now())
-  startedAt     DateTime 
-  completedAt   DateTime 
+  startedAt     DateTime?
+  completedAt   DateTime?
+  definition    String
 
   creditsConsumed Int @default(0)
 
