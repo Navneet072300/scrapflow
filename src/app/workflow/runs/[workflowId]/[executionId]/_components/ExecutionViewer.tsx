@@ -40,9 +40,13 @@ import { DatesToDuration } from "@/lib/helper/dates";
 import { GetPhasesTotalCost } from "@/lib/helper/phases";
 import {
   ExecutionPhaseStatus,
+  ExecutionStatus,
   WorkflowExecutionStatus,
 } from "@/types/workflow";
 import { GetWorkflowPhaseDetails } from "@/actions/workflows/getWorkflowPhaseDetails";
+import PhaseStatusBadge from "./PhasesStatusBadges";
+import { Loglevel } from "@/types/logs";
+import { ExecutionLog } from "@prisma/client";
 
 type ExecutionData = ReturnType<typeof GetWorkflowExecutionWithPhases>;
 type PhaseDetails = Awaited<ReturnType<typeof GetWorkflowPhaseDetails>> & {

@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { ExecutionStatus } from "@/types/workflow";
+import { ExecutionPhaseStatus, ExecutionStatus } from "@/types/workflow";
 import React from "react";
 
 const indicatorColors: Record<ExecutionStatus, string> = {

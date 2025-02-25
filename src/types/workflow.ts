@@ -40,3 +40,9 @@ export enum WorkflowExecutionTrigger {
   MANUAL = "MANUAL",
   SCHEDULED = "SCHEDULED",
 }
+export enum ExecutionStatus {
+  PENDING = "PENDING",
+  RUNNING = "RUNNING",
+  COMPLETED = "COMPLETED",
+  FAILED = "FAILED",
+}
